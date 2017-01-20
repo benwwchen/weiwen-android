@@ -1,0 +1,64 @@
+<resources>
+    <string name="app_name">未闻</string>
+
+    <!--drawer strings-->
+    <string name="navigation_drawer_open">打开</string>
+    <string name="navigation_drawer_close">关闭</string>
+    <string name="navigation_drawer_timeline">首页</string>
+    <string name="navigation_drawer_explore">探索</string>
+    <string name="navigation_drawer_me">我的主页</string>
+    <string name="navigation_drawer_logout">登出</string>
+    <string name="navigation_drawer_about">关于</string>
+
+    <string name="title_comment">评论</string>
+    <string name="title_detail">详情</string>
+    <string name="title_activity_about">关于</string>
+
+    <string name="action_settings">设置</string>
+    <string name="title_activity_login">登录</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_username">用户名</string>
+    <string name="prompt_email">电子邮件</string>
+    <string name="prompt_password">密码</string>
+    <string name="repeat_password">重复密码</string>
+    <string name="prompt_bio">个人简介</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_sign_up">注册</string>
+    <string name="error_invalid_email">电子邮箱格式不对</string>
+    <string name="error_invalid_password">密码长度太短了</string>
+    <string name="error_incorrect_password">密码错误</string>
+    <string name="error_field_required">这是必填项目</string>
+
+    <string name="like_count_text">次赞</string>
+
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_activity_homepage">主页</string>
+    <string name="app_info">未闻是一个以分享照片为主题的社交网站，注册用户可以发布照片并配上文字，
+        发现其他注册用户分享的照片，对其他用户发布的照片进行评论或点赞，还可以根据个人喜好关注其
+        他用户。照片分享是时下最热门的社交主题之一，“未闻”将会实现网页端和安卓端的同步，满足电脑
+        端和安卓端的用户，配合响应式网页设计，未安装手机APP的用户也可以通过浏览器访问。\n
+        \n
+        功能 :\n
+        1.	用户注册、登录、登出\n
+        2.	编辑头像\n
+        3.	发布照片\n
+        4.	查看全站最新发布的照片\n
+        5.	对博主进行关注和取消关注\n
+        6.	评论其他用户发布的照片\n
+        7.	点赞其他用户发布的照片\n
+        8.	删除已发布的照片\n\n
+
+        安卓 DEMO 0.2\n\n
+        组长：陈伟威（14348010）\n
+        组员：陈铭昕（14348008）\n&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+        陈晓杰（14348012）\n&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+        胡彩芹（14348032）\n</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_register">注册</string>
+    <string name="action_sign_in_short">Sign in</string>
+
+</resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <!--<item-->
+            <!--android:id="@+id/nav_camera"-->
+            <!--android:icon="@drawable/ic_menu_camera"-->
+            <!--android:title="发布" />-->
+        <item
+            android:id="@+id/nav_timeline"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="@string/navigation_drawer_timeline" />
+
+        <item
+            android:id="@+id/nav_explore"
+            android:icon="@drawable/ic_near"
+            android:title="@string/navigation_drawer_explore" />
+
+        <item
+            android:id="@+id/nav_me"
+            android:icon="@drawable/ic_home"
+            android:title="@string/navigation_drawer_me" />
+
+    </group>
+
+    <item android:title="其它">
+        <menu>
+            <!--<item-->
+                <!--android:id="@+id/nav_manage"-->
+                <!--android:icon="@drawable/ic_account_circle"-->
+                <!--android:title="@string/navigation_drawer_logout" />-->
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/ic_info"
+                android:title="@string/navigation_drawer_about" />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_logout"
+                android:title="@string/navigation_drawer_logout" />
+        </menu>
+    </item>
+
+</menu>

@@ -35,7 +35,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="title_activity_homepage">主页</string>
+    <string name="title_activity_homepage">加载中</string>
     <string name="app_info">未闻是一个以分享照片为主题的社交网站，注册用户可以发布照片并配上文字，
         发现其他注册用户分享的照片，对其他用户发布的照片进行评论或点赞，还可以根据个人喜好关注其
         他用户。照片分享是时下最热门的社交主题之一，“未闻”将会实现网页端和安卓端的同步，满足电脑

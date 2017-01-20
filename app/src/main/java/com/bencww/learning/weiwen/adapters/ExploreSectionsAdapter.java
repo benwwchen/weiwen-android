@@ -1,6 +1,7 @@
 package com.bencww.learning.weiwen.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
+import com.bencww.learning.weiwen.HomepageActivity;
 import com.bencww.learning.weiwen.R;
 import com.bencww.learning.weiwen.models.ExploreSection;
 import com.bencww.learning.weiwen.models.Comment;
@@ -84,24 +86,38 @@ public class ExploreSectionsAdapter extends RecyclerView.Adapter<ExploreSections
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
+        final ExploreSection curExploreSection = mExploreSections.get(position);
+
         // username, bio
-        holder.userNameTextView.setText(mExploreSections.get(position).getUser().getUsername());
-        holder.bioTextView.setText(mExploreSections.get(position).getUser().getBio());
+        holder.userNameTextView.setText(curExploreSection.getUser().getUsername());
+        holder.bioTextView.setText(curExploreSection.getUser().getBio());
 
         // avatar, (up to) 3 pics
         ImageView avatarImageView = holder.avatarImageView;
         List<ImageView> picImageViews = holder.picImageViews;
 
-        String avatarUrl = WeiwenApiClient.getAvatarUrl(mExploreSections.get(position).getUser().getAvatar());
+        String avatarUrl = WeiwenApiClient.getAvatarUrl(curExploreSection.getUser().getAvatar());
         mImageLoader.get(avatarUrl, ImageLoader.getImageListener(avatarImageView,
                 R.color.cardview_light_background, R.color.cardview_light_background));
+
+        // click username or avatar jump to homepage
+        View.OnClickListener nameAvatarOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, HomepageActivity.class);
+                intent.putExtra("username", curExploreSection.getUser().getUsername());
+                context.startActivity(intent);
+            }
+        };
+        holder.userNameTextView.setOnClickListener(nameAvatarOnClickListener);
+        holder.avatarImageView.setOnClickListener(nameAvatarOnClickListener);
 
         // clear the ImageViews
         for (int i = 0; i < 3; i++) {
             picImageViews.get(i).setImageResource(0);
         }
 
-        List<Post> posts = mExploreSections.get(position).getPosts();
+        List<Post> posts = curExploreSection.getPosts();
         if (posts != null) {
             for (int i = 0; i < posts.size(); i++) {
                 String picUrl = WeiwenApiClient.getPicUrl(posts.get(i).getUrl());

@@ -1,6 +1,7 @@
 package com.bencww.learning.weiwen.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -13,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
+import com.bencww.learning.weiwen.HomepageActivity;
 import com.bencww.learning.weiwen.R;
 import com.bencww.learning.weiwen.models.Post;
 import com.bencww.learning.weiwen.models.Comment;
@@ -109,11 +111,24 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 R.color.cardview_light_background, R.color.cardview_light_background), picMaxWidth,
                 picMaxHeight);
 
+        // click username or avatar jump to homepage
+        View.OnClickListener nameAvatarOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, HomepageActivity.class);
+                intent.putExtra("username", curPost.getUsername());
+                context.startActivity(intent);
+            }
+        };
+        holder.userNameTextView.setOnClickListener(nameAvatarOnClickListener);
+        holder.avatarImageView.setOnClickListener(nameAvatarOnClickListener);
+
         // like count, description
         holder.commentsLayout.removeAllViewsInLayout();
         if (curPost.getLikeCount() != 0) {
             View likeCountView = getCommentView(holder, String.valueOf(curPost.getLikeCount())
                     , context.getString(R.string.like_count_text));
+            likeCountView.findViewById(R.id.comment_username_text_view).setOnClickListener(null);
             holder.commentsLayout.addView(likeCountView);
         }
         View descriptionView = getCommentView(holder, curPost.getUsername(), curPost.getDescription());
@@ -122,8 +137,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         // comments
         List<Comment> comments = curPost.getComments();
         for (int i = 0; i < comments.size(); i++) {
+            final Comment curComment = comments.get(i);
             View commentView = getCommentView(holder,
-                    comments.get(i).getUsername(), comments.get(i).getContent());
+                    curComment.getUsername(), curComment.getContent());
             holder.commentsLayout.addView(commentView);
         }
 
@@ -161,10 +177,19 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         void onCommentButtonClick(int postId);
     }
 
-    private View getCommentView(ViewHolder holder, String name, String content) {
+    private View getCommentView(ViewHolder holder, final String name, String content) {
         View commentView = LayoutInflater.from(holder.commentsLayout.getContext())
                 .inflate(R.layout.comment_list_item, holder.commentsLayout, false);
-        ((TextView) commentView.findViewById(R.id.comment_username_text_view)).setText(name);
+        TextView usernameTextView = (TextView) commentView.findViewById(R.id.comment_username_text_view);
+        usernameTextView.setText(name);
+        usernameTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, HomepageActivity.class);
+                intent.putExtra("username", name);
+                context.startActivity(intent);
+            }
+        });
         ((TextView) commentView.findViewById(R.id.comment_content_text_view)).setText(content);
         return commentView;
     }

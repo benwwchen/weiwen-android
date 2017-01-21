@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/tools"
+    android:id="@+id/post_list_item"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -64,24 +65,42 @@
                         android:layout_alignBottom="@+id/username_text_view"
                         android:layout_alignParentRight="true"
                         android:layout_alignParentEnd="true" />
+
                 </RelativeLayout>
 
             </LinearLayout>
 
             <ImageView
                 android:layout_width="match_parent"
-                app:srcCompat="@drawable/sample_pic"
                 android:id="@+id/pic_image_view"
                 android:layout_weight="0"
                 android:scaleType="centerCrop"
                 android:layout_height="380dp" />
 
-            <LinearLayout
-                android:orientation="vertical"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0"
-                android:id="@+id/comments_layout"></LinearLayout>
+                android:layout_height="wrap_content"
+                android:layout_weight="0">
+
+                <Button
+                    android:id="@+id/delete_button"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="false"
+                    android:text="删除"
+                    android:layout_width="64dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="-4dp" />
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    android:id="@+id/comments_layout"></LinearLayout>
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"

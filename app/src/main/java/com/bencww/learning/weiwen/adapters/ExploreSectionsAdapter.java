@@ -2,15 +2,22 @@ package com.bencww.learning.weiwen.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.bencww.learning.weiwen.HomepageActivity;
@@ -33,9 +40,13 @@ import java.util.ListIterator;
  */
 
 public class ExploreSectionsAdapter extends RecyclerView.Adapter<ExploreSectionsAdapter.ViewHolder> {
+
+    private ExploreSectionsAdapterCallback mExploreSectionsAdapterCallback;
     private ArrayList<ExploreSection> mExploreSections;
-    ImageLoader mImageLoader;
-    Context context;
+    private ImageLoader mImageLoader;
+    private Context context;
+    private Handler mSetFollowHandler;
+    private boolean mFollowAttempt;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -44,6 +55,7 @@ public class ExploreSectionsAdapter extends RecyclerView.Adapter<ExploreSections
         public ImageView avatarImageView;
         public TextView userNameTextView;
         public TextView bioTextView;
+        public Button followButton;
         public List<ImageView> picImageViews;
 
         public ViewHolder(View itemView) {
@@ -51,6 +63,7 @@ public class ExploreSectionsAdapter extends RecyclerView.Adapter<ExploreSections
             avatarImageView = (ImageView) itemView.findViewById(R.id.avatar_image_view);
             userNameTextView = (TextView) itemView.findViewById(R.id.username_text_view);
             bioTextView = (TextView) itemView.findViewById(R.id.bio_text_view);
+            followButton = (Button) itemView.findViewById(R.id.follow_button);
             ImageView[] picImageViewsArray = {
                     (ImageView) itemView.findViewById(R.id.pic1_image_view),
                     (ImageView) itemView.findViewById(R.id.pic2_image_view),
@@ -61,11 +74,31 @@ public class ExploreSectionsAdapter extends RecyclerView.Adapter<ExploreSections
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ExploreSectionsAdapter(ArrayList<ExploreSection> exploreSections, Context context) {
+    public ExploreSectionsAdapter(ArrayList<ExploreSection> exploreSections, final Context context,
+                                  ExploreSectionsAdapterCallback exploreSectionsAdapterCallback) {
         this.context = context;
-        mExploreSections = exploreSections;
+        this.mExploreSections = exploreSections;
+        this.mExploreSectionsAdapterCallback = exploreSectionsAdapterCallback;
         // Get the ImageLoader through your singleton class.
         mImageLoader = VolleyUtil.getInstance(context).getImageLoader();
+        mSetFollowHandler = new Handler() {
+            @Override
+            public void handleMessage(android.os.Message msg) {
+                boolean isSuccess;
+
+                if(msg.what == 1){
+                    isSuccess = (boolean) msg.obj;
+                } else {
+                    Log.d("error", (String) msg.obj);
+                    Toast.makeText(context, "错误:" + msg.obj, Toast.LENGTH_SHORT).show();
+                    isSuccess = false;
+                }
+                if (isSuccess) {
+                    // updata data in the fragment
+                    mExploreSectionsAdapterCallback.onSetFollow(mFollowAttempt);
+                }
+            }
+        };
     }
 
     // Create new views (invoked by the layout manager)
@@ -112,6 +145,26 @@ public class ExploreSectionsAdapter extends RecyclerView.Adapter<ExploreSections
         holder.userNameTextView.setOnClickListener(nameAvatarOnClickListener);
         holder.avatarImageView.setOnClickListener(nameAvatarOnClickListener);
 
+        // follow button
+        holder.followButton.setText(curExploreSection.isFollowed()?
+                R.string.following : R.string.follow);
+        if (curExploreSection.isFollowed()) {
+            holder.followButton.getBackground().setColorFilter(
+                    ContextCompat.getColor(context, R.color.colorFollowing), PorterDuff.Mode.MULTIPLY);
+        } else {
+            holder.followButton.getBackground().setColorFilter(null);
+        }
+
+        holder.followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFollowAttempt = !curExploreSection.isFollowed();
+                WeiwenApiClient.getInstance(context).setFollowByUsername(
+                        curExploreSection.getUser().getUsername(),
+                        !curExploreSection.isFollowed(), mSetFollowHandler);
+            }
+        });
+
         // clear the ImageViews
         for (int i = 0; i < 3; i++) {
             picImageViews.get(i).setImageResource(0);
@@ -126,7 +179,10 @@ public class ExploreSectionsAdapter extends RecyclerView.Adapter<ExploreSections
                         300, 300);
             }
         }
-        //holder.itemView.setVisibility(posts != null? View.VISIBLE : View.GONE);
+    }
+
+    public interface ExploreSectionsAdapterCallback {
+        void onSetFollow(boolean follow); // tell the Explore Fragment to refresh data
     }
 
     // Return the size of your dataset (invoked by the layout manager)

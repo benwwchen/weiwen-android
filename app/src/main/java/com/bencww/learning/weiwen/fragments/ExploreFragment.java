@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,8 +23,11 @@ import com.bencww.learning.weiwen.models.ExploreSection;
 import com.bencww.learning.weiwen.models.Post;
 import com.bencww.learning.weiwen.utils.WeiwenApiClient;
 
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -35,7 +39,7 @@ import java.util.List;
  * Use the {@link ExploreFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ExploreFragment extends Fragment {
+public class ExploreFragment extends Fragment implements ExploreSectionsAdapter.ExploreSectionsAdapterCallback {
 
     private Context context;
     RecyclerView exploreSectionsRecyclerView;
@@ -93,7 +97,7 @@ public class ExploreFragment extends Fragment {
 
         // initialize empty data, adapter
         mExploreSections = new ArrayList<>();
-        mExploreSectionsAdapter = new ExploreSectionsAdapter(mExploreSections, context);
+        mExploreSectionsAdapter = new ExploreSectionsAdapter(mExploreSections, context, this);
         exploreSectionsRecyclerView.setAdapter(mExploreSectionsAdapter);
 
 
@@ -113,6 +117,7 @@ public class ExploreFragment extends Fragment {
                 }
 
                 // update data
+                Collections.sort(exploreSections, exploreSectionsComparator);
                 mExploreSections.clear();
                 mExploreSections.addAll(exploreSections);
                 mExploreSectionsAdapter.notifyDataSetChanged();
@@ -141,9 +146,13 @@ public class ExploreFragment extends Fragment {
         mSwipeRefreshLayout.post(new Runnable() {
             @Override public void run() {
                 mSwipeRefreshLayout.setRefreshing(true);
-                WeiwenApiClient.getInstance(context).getExplorePosts(mExploreSectionsHandler);
+                refreshData();
             }
         });
+    }
+
+    private void refreshData() {
+        WeiwenApiClient.getInstance(context).getExplorePosts(mExploreSectionsHandler);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -170,6 +179,24 @@ public class ExploreFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onSetFollow(boolean follow) {
+        String message = "已取消关注";
+        if (follow) message = "已关注";
+        Snackbar.make(exploreSectionsRecyclerView, message, Snackbar.LENGTH_LONG).show();
+        refreshData();
+    }
+
+    private Comparator<ExploreSection> exploreSectionsComparator = new Comparator<ExploreSection>() {
+        private final Collator collator = Collator.getInstance();
+
+        public int compare(ExploreSection e1, ExploreSection e2) {
+            return collator.compare(
+                    String.valueOf(e1.getUser().getUserId()),
+                    String.valueOf(e2.getUser().getUserId()));
+        }
+    };
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -181,7 +208,6 @@ public class ExploreFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

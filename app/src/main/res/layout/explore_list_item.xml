@@ -64,7 +64,18 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="0">
+                    android:layout_weight="2">
+
+                    <Button
+                        android:text="关注"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:id="@+id/follow_button"
+                        android:layout_weight="1"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        style="@style/Widget.AppCompat.Button.Colored"
+                        android:textSize="12sp" />
                 </RelativeLayout>
 
             </LinearLayout>

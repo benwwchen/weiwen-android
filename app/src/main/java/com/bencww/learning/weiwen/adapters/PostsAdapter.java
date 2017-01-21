@@ -1,10 +1,13 @@
 package com.bencww.learning.weiwen.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +35,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
     private PostsAdapterCallback mPostsAdapterCallback;
     private ArrayList<Post> mPosts;
+    private String mUsername;
     ImageLoader mImageLoader;
     Context context;
     private int picMaxWidth;
@@ -46,6 +50,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         public TextView timeTextView;
         public ImageView picImageView;
         public LinearLayout commentsLayout;
+        public Button deleteButton;
         public Button likeButton;
         public Button commentButton;
 
@@ -56,6 +61,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             timeTextView = (TextView) itemView.findViewById(R.id.time_text_view);
             picImageView = (ImageView) itemView.findViewById(R.id.pic_image_view);
             commentsLayout = (LinearLayout) itemView.findViewById(R.id.comments_layout);
+            deleteButton = (Button) itemView.findViewById(R.id.delete_button);
             likeButton = (Button) itemView.findViewById(R.id.like_button);
             commentButton = (Button) itemView.findViewById(R.id.comment_button);
         }
@@ -72,6 +78,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         picMaxWidth = dm.widthPixels;
         picMaxHeight = dm.heightPixels;
+        mUsername = WeiwenApiClient.getInstance(context).getUser().getUsername();
     }
 
     // Create new views (invoked by the layout manager)
@@ -143,6 +150,20 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             holder.commentsLayout.addView(commentView);
         }
 
+        // delete button
+        if (curPost.getUsername().equals(mUsername)) {
+            holder.deleteButton.setVisibility(View.VISIBLE);
+            holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mPostsAdapterCallback.onDeleteButtonClick(curPost.getPostId());
+                }
+            });
+        } else {
+            holder.deleteButton.setVisibility(View.INVISIBLE);
+            holder.deleteButton.setOnClickListener(null);
+        }
+
         // like button and comment button
         final boolean isLiked = curPost.isLiked();
         if (isLiked) {
@@ -175,6 +196,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     public interface PostsAdapterCallback {
         void onLikeButtonClick(int postId, boolean like);
         void onCommentButtonClick(int postId);
+        void onDeleteButtonClick(int postId);
     }
 
     private View getCommentView(ViewHolder holder, final String name, String content) {

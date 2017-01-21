@@ -22,7 +22,7 @@ public class ExploreSection {
         return user;
     }
 
-    public boolean getIsFollowed() {
+    public boolean isFollowed() {
         return isFollowed;
     }
 

@@ -23,14 +23,17 @@ public class Comment {
     @SerializedName("create_time")
     private String createTime;
     private String username;
+    private String avatar;
 
-    public Comment(Integer commentId, Integer userId, Integer postId, String content, String createTime, String username) {
+    public Comment(Integer commentId, Integer userId, Integer postId, String content,
+                   String createTime, String username, String avatar) {
         this.commentId = commentId;
         this.userId = userId;
         this.postId = postId;
         this.content = content;
         this.createTime = createTime;
         this.username = username;
+        this.avatar = avatar;
     }
 
     public Integer getCommentId() {
@@ -57,12 +60,14 @@ public class Comment {
         return username;
     }
 
+    public String getAvatar() {
+        return avatar;
+    }
+
     public static List<Comment> commentSampleList = initCommentSampleData();
     private static List<Comment> initCommentSampleData() {
         Comment[] commentsArray = {
-                new Comment(5, 3, 12, "haha", "1 个月前", "ben"),
-                new Comment(5, 3, 12, "haha2", "1 个月前", "ben2"),
-                new Comment(5, 3, 12, "haha3", "1 个月前", "ben3"),
+                new Comment(5, 3, 12, "haha", "1 个月前", "ben", "/img/avatar.jpg")
         };
 
         List<Comment> commentsList = Arrays.asList(commentsArray);

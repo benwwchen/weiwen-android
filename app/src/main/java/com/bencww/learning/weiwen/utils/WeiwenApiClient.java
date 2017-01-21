@@ -47,7 +47,7 @@ public class WeiwenApiClient {
     private String mMessage;
     private boolean isLogin = false;
 
-    private static final String ROOT_URL = "http://weiwen.bencww.com";
+    private static final String ROOT_URL = "http://10.0.0.13:3000";
     private static final String BASE_URL = ROOT_URL + "/api/";
     private static final String SESSION_PATH = "session";
     private static final String USER_PATH = "user";
@@ -56,6 +56,7 @@ public class WeiwenApiClient {
     private static final String UNLIKE_PATH = "unlike";
     private static final String COMMENT_PATH = "comment";
     private static final String FOLLOW_PATH = "follow";
+    private static final String UNFOLLOW_PATH = "unfollow";
     private static final String EXPLORE_PATH = "explore";
     private static final String IMAGE_PATH = "/images/";
 
@@ -247,6 +248,78 @@ public class WeiwenApiClient {
         VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
     }
 
+    public void getPost(final int postId, final Handler handler) {
+        RequestFuture<String> future = RequestFuture.newFuture();
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                getAbsoluteUrl(POST_PATH + "/" + String.valueOf(postId)), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Message message = new Message();
+
+                if (response.contains("post")) {
+                    GsonBuilder gsonBuilder = new GsonBuilder();
+                    Gson gson = gsonBuilder.create();
+
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        Post post = gson.fromJson(jsonObject.getString("post"), Post.class);
+                        message.what = SUCCESS_CODE;
+                        message.obj = post;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
+                } else {
+                    message.what = ERROR_CODE;
+                    message.obj = getMessageFromJSON(response);
+                }
+
+                handler.sendMessage(message);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Message message = new Message();
+                message.what = ERROR_CODE;
+                message.obj = String.valueOf(volleyError.networkResponse.statusCode);
+                handler.sendMessage(message);
+            }
+        });
+        VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
+    }
+
+    public void deletePost(final int postId, final Handler handler) {
+        RequestFuture<String> future = RequestFuture.newFuture();
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE,
+                getAbsoluteUrl(POST_PATH + "/" + String.valueOf(postId)),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Message message = new Message();
+
+                        if (response.contains("success")) {
+                            message.what = SUCCESS_CODE;
+                            message.obj = true;
+                        } else {
+                            message.what = ERROR_CODE;
+                            message.obj = getMessageFromJSON(response);
+                        }
+
+                        handler.sendMessage(message);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Message message = new Message();
+                message.what = ERROR_CODE;
+                message.obj = String.valueOf(volleyError.networkResponse.statusCode);
+                handler.sendMessage(message);
+            }
+        });
+        VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
+    }
+
     public void getHomepageData(String username, final Handler handler) {
         RequestFuture<String> future = RequestFuture.newFuture();
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
@@ -311,6 +384,79 @@ public class WeiwenApiClient {
                 handler.sendMessage(message);
             }
         }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Message message = new Message();
+                message.what = ERROR_CODE;
+                message.obj = String.valueOf(volleyError.networkResponse.statusCode);
+                handler.sendMessage(message);
+            }
+        });
+        VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
+    }
+
+    public void commentOnAPost(final int postId, final String content, final Handler handler) {
+        RequestFuture<String> future = RequestFuture.newFuture();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                getAbsoluteUrl(COMMENT_PATH),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Message message = new Message();
+
+                        if (response.contains("success")) {
+                            message.what = SUCCESS_CODE;
+                            message.obj = true;
+                        } else {
+                            message.what = ERROR_CODE;
+                            message.obj = getMessageFromJSON(response);
+                        }
+
+                        handler.sendMessage(message);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Message message = new Message();
+                message.what = ERROR_CODE;
+                message.obj = String.valueOf(volleyError.networkResponse.statusCode);
+                handler.sendMessage(message);
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("postId", String.valueOf(postId));
+                params.put("commentContent", content);
+
+                return params;
+            }
+        };
+        VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
+    }
+
+    public void setFollowByUsername(final String username, boolean follow, final Handler handler) {
+        int method = follow? Request.Method.POST : Request.Method.DELETE;
+        String path = follow? FOLLOW_PATH : UNFOLLOW_PATH;
+        RequestFuture<String> future = RequestFuture.newFuture();
+        StringRequest stringRequest = new StringRequest(method,
+                getAbsoluteUrl(path + "/" + username),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Message message = new Message();
+
+                        if (response.contains("success")) {
+                            message.what = SUCCESS_CODE;
+                            message.obj = true;
+                        } else {
+                            message.what = ERROR_CODE;
+                            message.obj = getMessageFromJSON(response);
+                        }
+
+                        handler.sendMessage(message);
+                    }
+                }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Message message = new Message();

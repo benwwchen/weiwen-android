@@ -1,6 +1,7 @@
 package com.bencww.learning.weiwen.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,7 +53,9 @@ public class TimelineFragment extends Fragment implements PostsAdapter.PostsAdap
 
     private OnFragmentInteractionListener mListener;
 
-    private static int COMMENT_CODE = 1;
+    private static final int COMMENT_CODE = 1;
+    private static final int UPDATE_COMMENT = 1;
+    private static final int NO_UPDATE_COMMENT = 0;
 
     public TimelineFragment() {
         // Required empty public constructor
@@ -209,6 +212,53 @@ public class TimelineFragment extends Fragment implements PostsAdapter.PostsAdap
         startActivityForResult(intent, COMMENT_CODE);
     }
 
+    @Override
+    public void onDeleteButtonClick(final int postId) {
+        final Handler deletePostHandler = new Handler() {
+            @Override
+            public void handleMessage(android.os.Message msg) {
+                boolean isSuccess;
+
+                if(msg.what == 1){
+
+                    isSuccess = (boolean) msg.obj;
+                } else {
+                    Log.d("error", (String) msg.obj);
+                    Toast.makeText(context, "错误:" + msg.obj, Toast.LENGTH_SHORT).show();
+                    isSuccess = false;
+                }
+
+                refreshData();
+            }
+        };
+        // show confirm dialog
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(context);
+        builder.setTitle("删除图片");
+        builder.setMessage("确定要删除这张图片吗？");
+        builder.setNegativeButton("取消", null);
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                WeiwenApiClient.getInstance(context).deletePost(postId, deletePostHandler);
+            }
+        });
+        builder.show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case COMMENT_CODE: {
+                if (resultCode == UPDATE_COMMENT) {
+                    refreshData();
+                }
+            }
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -220,7 +270,6 @@ public class TimelineFragment extends Fragment implements PostsAdapter.PostsAdap
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

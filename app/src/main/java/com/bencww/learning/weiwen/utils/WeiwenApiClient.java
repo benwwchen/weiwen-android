@@ -47,7 +47,8 @@ public class WeiwenApiClient {
     private String mMessage;
     private boolean isLogin = false;
 
-    private static final String ROOT_URL = "http://10.0.0.13:3000";
+    //private static final String ROOT_URL = "http://10.0.0.13:3000"; // test
+    private static final String ROOT_URL = "http://weiwen.bencww.com"; // production
     private static final String BASE_URL = ROOT_URL + "/api/";
     private static final String SESSION_PATH = "session";
     private static final String USER_PATH = "user";
@@ -92,14 +93,58 @@ public class WeiwenApiClient {
         isLogin = false;
     }
 
-    public boolean loginAccount(final String userName, final String password) {
+    public boolean registerAccount(final String username, final String email,
+                                final String password, final String bio) {
+        RequestFuture<String> future = RequestFuture.newFuture();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                getAbsoluteUrl(USER_PATH), future, future) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("username", username);
+                params.put("email", email);
+                params.put("password", password);
+                params.put("repassword", password); // compare before pass in here
+                params.put("bio", bio);
+
+                return params;
+            }
+        };
+        VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
+        try {
+            String response = future.get(); // this will block
+            Log.d("LOGIN", "response" + response.toString());
+            if (response.contains("success")) {
+                isLogin = true;
+
+                // retrive user info
+                this.user = getUserInfo();
+                if (user == null) {
+                    // something went wrong
+                    mMessage = "无法获取用户信息";
+                    return false;
+                }
+
+                return true;
+            } else {
+                mMessage = getMessageFromJSON(response);
+            }
+        } catch (InterruptedException e) {
+            Log.d("ERROR", "error => " + e.toString());
+        } catch (ExecutionException e) {
+            Log.d("ERROR", "error => " + e.toString());
+        }
+        return false;
+    }
+
+    public boolean loginAccount(final String username, final String password) {
         RequestFuture<String> future = RequestFuture.newFuture();
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
                 getAbsoluteUrl(SESSION_PATH), future, future) {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("username", userName);
+                params.put("username", username);
                 params.put("password", password);
 
                 return params;
@@ -248,6 +293,36 @@ public class WeiwenApiClient {
         VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
     }
 
+    public boolean createPost(final String base64img, final String description) {
+        RequestFuture<String> future = RequestFuture.newFuture();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                getAbsoluteUrl(POST_PATH), future, future) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("image", base64img);
+                params.put("description", description);
+
+                return params;
+            }
+        };
+        VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
+        try {
+            String response = future.get(); // this will block
+            Log.d("LOGIN", "response" + response.toString());
+            if (response.contains("success")) {
+                return true;
+            } else {
+                mMessage = getMessageFromJSON(response);
+            }
+        } catch (InterruptedException e) {
+            Log.d("ERROR", "error => " + e.toString());
+        } catch (ExecutionException e) {
+            Log.d("ERROR", "error => " + e.toString());
+        }
+        return false;
+    }
+
     public void getPost(final int postId, final Handler handler) {
         RequestFuture<String> future = RequestFuture.newFuture();
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
@@ -282,8 +357,10 @@ public class WeiwenApiClient {
             public void onErrorResponse(VolleyError volleyError) {
                 Message message = new Message();
                 message.what = ERROR_CODE;
-                message.obj = String.valueOf(volleyError.networkResponse.statusCode);
-                handler.sendMessage(message);
+                if (volleyError != null) { // for gfw maybe
+                    message.obj = String.valueOf(volleyError.networkResponse.statusCode);
+                    handler.sendMessage(message);
+                }
             }
         });
         VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);

@@ -114,6 +114,10 @@ public class TimelineFragment extends Fragment implements PostsAdapter.PostsAdap
 
                 if(msg.what == 1){
                     posts = (List<Post>) msg.obj;
+                    if (posts == null) {
+                        posts = Collections.EMPTY_LIST;
+                        mListener.onFragmentInteraction(true);
+                    }
                 } else {
                     Log.d("error", (String) msg.obj);
                     posts = Collections.EMPTY_LIST;
@@ -157,13 +161,6 @@ public class TimelineFragment extends Fragment implements PostsAdapter.PostsAdap
     // refresh data only
     public void refreshData() {
         WeiwenApiClient.getInstance(context).getTimelinePosts(mPostsHandler);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -270,6 +267,6 @@ public class TimelineFragment extends Fragment implements PostsAdapter.PostsAdap
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(boolean isEmpty);
     }
 }

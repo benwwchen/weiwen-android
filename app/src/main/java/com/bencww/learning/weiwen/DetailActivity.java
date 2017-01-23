@@ -1,13 +1,16 @@
 package com.bencww.learning.weiwen;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -31,6 +34,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private int mPostId;
     private Post mPost;
+    private String mUsername;
 
     private static final int ERROR_CODE = -1;
     private static final int COMMENT_CODE = 1;
@@ -43,6 +47,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView mTimeTextView;
     private ImageView mPicImageView;
     private LinearLayout mCommentsLayout;
+    private Button mDeleteButton;
     private Button mLikeButton;
     private Button mCommentButton;
 
@@ -74,6 +79,7 @@ public class DetailActivity extends AppCompatActivity {
         mTimeTextView = (TextView) postView.findViewById(R.id.time_text_view);
         mPicImageView = (ImageView) postView.findViewById(R.id.pic_image_view);
         mCommentsLayout = (LinearLayout) postView.findViewById(R.id.comments_layout);
+        mDeleteButton = (Button) postView.findViewById(R.id.delete_button);
         mLikeButton = (Button) postView.findViewById(R.id.like_button);
         mCommentButton = (Button) postView.findViewById(R.id.comment_button);
 
@@ -101,6 +107,8 @@ public class DetailActivity extends AppCompatActivity {
         };
 
         loadData();
+
+        mUsername = WeiwenApiClient.getInstance(this).getUser().getUsername();
 
     }
 
@@ -157,6 +165,20 @@ public class DetailActivity extends AppCompatActivity {
             mCommentsLayout.addView(commentView);
         }
 
+        // delete button
+        if (mPost.getUsername().equals(mUsername)) {
+            mDeleteButton.setVisibility(View.VISIBLE);
+            mDeleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onDeleteButtonClick(mPost.getPostId());
+                }
+            });
+        } else {
+            mDeleteButton.setVisibility(View.INVISIBLE);
+            mDeleteButton.setOnClickListener(null);
+        }
+
         // like button and comment button
         final boolean isLiked = mPost.isLiked();
         if (isLiked) {
@@ -184,6 +206,43 @@ public class DetailActivity extends AppCompatActivity {
                 onCommentButtonClick(mPost.getPostId());
             }
         });
+    }
+
+    private void onDeleteButtonClick(final int postId) {
+        final Handler deletePostHandler = new Handler() {
+            @Override
+            public void handleMessage(android.os.Message msg) {
+                boolean isSuccess;
+
+                if(msg.what == 1){
+                    isSuccess = (boolean) msg.obj;
+                    if (isSuccess) {
+                        Toast.makeText(getApplicationContext(),
+                                "已删除", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.d("error", (String) msg.obj);
+                    Toast.makeText(getApplicationContext(),
+                            "错误:" + msg.obj, Toast.LENGTH_SHORT).show();
+                    isSuccess = false;
+                }
+
+                finish();
+            }
+        };
+        // show confirm dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("删除图片");
+        builder.setMessage("确定要删除这张图片吗？");
+        builder.setNegativeButton("取消", null);
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                WeiwenApiClient.getInstance(getApplicationContext()).deletePost(postId, deletePostHandler);
+            }
+        });
+        builder.show();
     }
 
     private void onLikeButtonClick(int postId, boolean like) {
@@ -241,5 +300,14 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

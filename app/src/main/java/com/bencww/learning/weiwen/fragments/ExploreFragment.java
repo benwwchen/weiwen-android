@@ -183,7 +183,7 @@ public class ExploreFragment extends Fragment implements ExploreSectionsAdapter.
     public void onSetFollow(boolean follow) {
         String message = "已取消关注";
         if (follow) message = "已关注";
-        Snackbar.make(exploreSectionsRecyclerView, message, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(exploreSectionsRecyclerView, message, Snackbar.LENGTH_SHORT).show();
         refreshData();
     }
 

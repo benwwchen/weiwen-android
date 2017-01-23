@@ -132,6 +132,12 @@ public class HomepageActivity extends AppCompatActivity {
         loadData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
+    }
+
     private void loadData() {
         WeiwenApiClient.getInstance(this).getHomepageData(mUsername, mDataHandler);
     }
@@ -160,34 +166,36 @@ public class HomepageActivity extends AppCompatActivity {
 
         List<Post> posts = homepageData.getPosts();
         postsLayout.removeAllViewsInLayout();
-        for (int i = 0; i < posts.size(); i++) {
-            if (i % 3 == 0) {
-                // new row
-                postsRowLayout = LayoutInflater.from(this).inflate(R.layout.posts_row_item, postsLayout, false);
-                postsLayout.addView(postsRowLayout);
-                ImageView[] picImageViewsArray = {
-                        (ImageView) postsRowLayout.findViewById(R.id.pic1_image_view),
-                        (ImageView) postsRowLayout.findViewById(R.id.pic2_image_view),
-                        (ImageView) postsRowLayout.findViewById(R.id.pic3_image_view)
-                };
-                picImageViews = Arrays.asList(picImageViewsArray);
-                picImageViews.get(0).setMinimumHeight(picWidthOrHeight);
-            }
-            // load 3 pics per row (load the No.i%3 pic at a time)
-            String picUrl = WeiwenApiClient.getPicUrl(posts.get(i).getUrl());
-            mImageLoader.get(picUrl, ImageLoader.getImageListener(picImageViews.get(i%3),
-                    R.color.cardview_light_background, R.color.cardview_light_background),
-                    300, 300);
-            // click pic to jump to DetailActivity
-            final int curPostId = posts.get(i).getPostId();
-            picImageViews.get(i%3).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(HomepageActivity.this, DetailActivity.class);
-                    intent.putExtra("postId", curPostId);
-                    startActivity(intent);
+        if (posts != null) {
+            for (int i = 0; i < posts.size(); i++) {
+                if (i % 3 == 0) {
+                    // new row
+                    postsRowLayout = LayoutInflater.from(this).inflate(R.layout.posts_row_item, postsLayout, false);
+                    postsLayout.addView(postsRowLayout);
+                    ImageView[] picImageViewsArray = {
+                            (ImageView) postsRowLayout.findViewById(R.id.pic1_image_view),
+                            (ImageView) postsRowLayout.findViewById(R.id.pic2_image_view),
+                            (ImageView) postsRowLayout.findViewById(R.id.pic3_image_view)
+                    };
+                    picImageViews = Arrays.asList(picImageViewsArray);
+                    picImageViews.get(0).setMinimumHeight(picWidthOrHeight);
                 }
-            });
+                // load 3 pics per row (load the No.i%3 pic at a time)
+                String picUrl = WeiwenApiClient.getPicUrl(posts.get(i).getUrl());
+                mImageLoader.get(picUrl, ImageLoader.getImageListener(picImageViews.get(i%3),
+                        R.color.cardview_light_background, R.color.cardview_light_background),
+                        300, 300);
+                // click pic to jump to DetailActivity
+                final int curPostId = posts.get(i).getPostId();
+                picImageViews.get(i%3).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(HomepageActivity.this, DetailActivity.class);
+                        intent.putExtra("postId", curPostId);
+                        startActivity(intent);
+                    }
+                });
+            }
         }
 
         // setup follow button

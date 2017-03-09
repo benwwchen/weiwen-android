@@ -6,8 +6,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.StringRequest;
@@ -42,13 +44,14 @@ public class WeiwenApiClient {
     private static Context mCtx;
     CookieManager cookieManager;
 
+
     private String cookie;
     private User user = null;
     private String mMessage;
     private boolean isLogin = false;
 
     //private static final String ROOT_URL = "http://10.0.0.13:3000"; // test
-    private static final String ROOT_URL = "http://weiwen.bencww.com"; // production
+    private static final String ROOT_URL = "https://weiwen.bencww.com"; // production
     private static final String BASE_URL = ROOT_URL + "/api/";
     private static final String SESSION_PATH = "session";
     private static final String USER_PATH = "user";
@@ -306,6 +309,7 @@ public class WeiwenApiClient {
                 return params;
             }
         };
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(30*1000, 1, 1.0f));
         VolleyUtil.getInstance(mCtx).addToRequestQueue(stringRequest);
         try {
             String response = future.get(); // this will block
